@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web Vitals Score Simulator - Visualize and optimize Core Web Vitals metrics">
+    <title>Web Vitals Score Simulator</title>
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
+    <link rel="icon" href="favicon/favicon.ico">
+    <link rel="manifest" href="favicon/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#5d4ed3">
+    <meta name="theme-color" content="#ffffff">
+    <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <nav class="navbar navbar-expand-lg navbar-light" role="navigation">
+        <div class="container">
+            <span class="navbar-brand">Web Vitals Simulator</span>
+            <div class="ms-auto">
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+                    </svg>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div id="main-content" class="container py-4" role="main">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Performance Score</span>
+                        <small class="text-muted">Based on Core Web Vitals</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <div class="chart-glow"></div>
+                            <canvas id="webVitalsChart"></canvas>
+                            <div class="overall-score" id="overallScore">0</div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <form id="savePresetForm" class="d-flex">
+                                    <label for="presetName" class="visually-hidden">Preset name</label>
+                                    <input type="text" class="form-control form-control-sm me-2" id="presetName" placeholder="Name this preset" aria-required="true">
+                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <div id="presetsContainer" class="d-none">
+                                    <div class="input-group input-group-sm">
+                                        <label for="presetsDropdown" class="visually-hidden">Select a preset</label>
+                                        <select id="presetsDropdown" class="form-select form-select-sm" aria-label="Select saved preset">
+                                            <option value="">Select a preset...</option>
+                                        </select>
+                                        <button id="deletePresetBtn" class="btn btn-outline-danger btn-sm" type="button" aria-label="Delete selected preset">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16" aria-hidden="true">
+                                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="noPresetsMessage" class="text-muted small mt-2">
+                                    Save a preset to see it appear here
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Metrics Configuration</span>
+                        <small class="text-muted">Adjust values to see the impact</small>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-4">Adjust the sliders or enter values directly to see how improving specific metrics affects the overall performance score.</p>
+                        
+                        <div class="metric-slider metric-slider-lcp">
+                            <div class="metric-header">
+                                <div class="metric-title metric-lcp">
+                                    <i class="bi bi-hourglass-split me-1"></i>
+                                    LCP (Largest Contentful Paint) 
+                                    <button class="info-button ms-1" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Information about Largest Contentful Paint" title="LCP measures how long it takes for the largest content element in the viewport to render. Good: ≤2.5s, Needs Improvement: 2.5-4.0s, Poor: >4.0s. Contributes 30% to your overall performance score. A slow back-end can significantly delay LCP, so address server-side bottlenecks in addition to front-end optimizations.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle info-icon" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                        </svg>
+                                        <span class="visually-hidden">More information about LCP</span>
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" id="lcpInput" class="form-control form-control-sm metric-input input-good" value="2500" min="500" max="8000" step="100" aria-label="LCP value in milliseconds">
+                                    <span class="metric-badge badge-lcp ms-2">Weight: 30%</span>
+                                </div>
+                            </div>
+                            <label for="lcpSlider" class="visually-hidden">LCP slider</label>
+                            <input type="range" class="form-range" id="lcpSlider" min="500" max="8000" step="100" value="2500" aria-labelledby="lcpThresholds">
+                            <div class="thresholds" id="lcpThresholds">
+                                <div class="threshold-item threshold-good">Good: < 2500ms</div>
+                                <div class="threshold-item threshold-needs-improvement">Needs Improvement: 2500-4000ms</div>
+                                <div class="threshold-item threshold-poor">Poor: > 4000ms</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-slider metric-slider-cls">
+                            <div class="metric-header">
+                                <div class="metric-title metric-cls">
+                                    <i class="bi bi-layout-text-window me-1"></i>
+                                    CLS (Cumulative Layout Shift)
+                                    <button class="info-button ms-1" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Information about Cumulative Layout Shift" title="CLS measures visual stability by summing unexpected layout shifts. Good: ≤0.1, Needs Improvement: 0.1-0.25, Poor: >0.25. Contributes 15% to your overall performance score. CLS is unitless; 0.1 indicates very stable, while >0.25 denotes frequent layout shifts. Keeping CLS low is crucial since even a single large shift can flag the page as 'poor' for user experience.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle info-icon" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                        </svg>
+                                        <span class="visually-hidden">More information about CLS</span>
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" id="clsInput" class="form-control form-control-sm metric-input input-good" value="0.1" min="0" max="0.5" step="0.01" aria-label="CLS value">
+                                    <span class="metric-badge badge-cls ms-2">Weight: 15%</span>
+                                </div>
+                            </div>
+                            <label for="clsSlider" class="visually-hidden">CLS slider</label>
+                            <input type="range" class="form-range" id="clsSlider" min="0" max="0.5" step="0.01" value="0.1" aria-labelledby="clsThresholds">
+                            <div class="thresholds" id="clsThresholds">
+                                <div class="threshold-item threshold-good">Good: < 0.1</div>
+                                <div class="threshold-item threshold-needs-improvement">Needs Improvement: 0.1-0.25</div>
+                                <div class="threshold-item threshold-poor">Poor: > 0.25</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-slider metric-slider-fcp">
+                            <div class="metric-header">
+                                <div class="metric-title metric-fcp">
+                                    <i class="bi bi-eye me-1"></i>
+                                    FCP (First Contentful Paint)
+                                    <button class="info-button ms-1" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Information about First Contentful Paint" title="FCP measures when the first content appears on screen. Good: ≤1.0s, Needs Improvement: 1.0-3.0s, Poor: >3.0s. Contributes 15% to your overall performance score. It indicates when users see any initial feedback that the page is loading. A fast TTFB helps improve FCP. In practice, improving FCP (by speeding up the initial render) will raise the overall performance score.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle info-icon" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                        </svg>
+                                        <span class="visually-hidden">More information about FCP</span>
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" id="fcpInput" class="form-control form-control-sm metric-input input-good" value="1000" min="0" max="5000" step="100" aria-label="FCP value in milliseconds">
+                                    <span class="metric-badge badge-fcp ms-2">Weight: 15%</span>
+                                </div>
+                            </div>
+                            <label for="fcpSlider" class="visually-hidden">FCP slider</label>
+                            <input type="range" class="form-range" id="fcpSlider" min="0" max="5000" step="100" value="1000" aria-labelledby="fcpThresholds">
+                            <div class="thresholds" id="fcpThresholds">
+                                <div class="threshold-item threshold-good">Good: < 1000ms</div>
+                                <div class="threshold-item threshold-needs-improvement">Needs Improvement: 1000-3000ms</div>
+                                <div class="threshold-item threshold-poor">Poor: > 3000ms</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-slider metric-slider-ttfb">
+                            <div class="metric-header">
+                                <div class="metric-title metric-ttfb">
+                                    <i class="bi bi-server me-1"></i>
+                                    TTFB (Time to First Byte)
+                                    <button class="info-button ms-1" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Information about Time to First Byte" title="TTFB measures time until the first byte of page content is received. Good: ≤100ms, Needs Improvement: 100-600ms, Poor: >600ms. Contributes 10% to your overall performance score. It reflects server and network latency – essentially how quickly your back-end responds. A slow TTFB means the browser is sitting idle waiting for the server, which in turn delays other metrics like FCP and LCP.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle info-icon" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                        </svg>
+                                        <span class="visually-hidden">More information about TTFB</span>
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" id="ttfbInput" class="form-control form-control-sm metric-input input-good" value="100" min="0" max="1500" step="10" aria-label="TTFB value in milliseconds">
+                                    <span class="metric-badge badge-ttfb ms-2">Weight: 10%</span>
+                                </div>
+                            </div>
+                            <label for="ttfbSlider" class="visually-hidden">TTFB slider</label>
+                            <input type="range" class="form-range" id="ttfbSlider" min="0" max="1500" step="10" value="100" aria-labelledby="ttfbThresholds">
+                            <div class="thresholds" id="ttfbThresholds">
+                                <div class="threshold-item threshold-good">Good: < 100ms</div>
+                                <div class="threshold-item threshold-needs-improvement">Needs Improvement: 100-600ms</div>
+                                <div class="threshold-item threshold-poor">Poor: > 600ms</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-slider metric-slider-inp">
+                            <div class="metric-header">
+                                <div class="metric-title metric-inp">
+                                    <i class="bi bi-lightning-charge me-1"></i>
+                                    INP (Interaction to Next Paint)
+                                    <button class="info-button ms-1" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Information about Interaction to Next Paint" title="INP measures responsiveness to user interactions (clicks, taps, key presses). Good: ≤200ms, Needs Improvement: 200-500ms, Poor: >500ms. Contributes 30% to your overall performance score. Only the slowest interaction per page (at the 75th percentile) is used for INP. An INP under 200ms indicates your app reacts to user input almost instantly, whereas above 500ms is considered very sluggish.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle info-icon" viewBox="0 0 16 16">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                        </svg>
+                                        <span class="visually-hidden">More information about INP</span>
+                                    </button>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" id="inpInput" class="form-control form-control-sm metric-input input-good" value="200" min="0" max="1500" step="10" aria-label="INP value in milliseconds">
+                                    <span class="metric-badge badge-inp ms-2">Weight: 30%</span>
+                                </div>
+                            </div>
+                            <input type="range" class="form-range" id="inpSlider" min="0" max="1500" step="10" value="200" aria-labelledby="inpThresholds">
+                            <div class="thresholds" id="inpThresholds">
+                                <div class="threshold-item threshold-good">Good: < 200ms</div>
+                                <div class="threshold-item threshold-needs-improvement">Needs Improvement: 200-500ms</div>
+                                <div class="threshold-item threshold-poor">Poor: > 500ms</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        How to Improve Web Vitals
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="improvementAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="lcpHeading">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#lcpImprovement" aria-expanded="false" aria-controls="lcpImprovement" aria-label="Improve LCP section, click to expand">
+                                        Improving LCP (Largest Contentful Paint)
+                                    </button>
+                                </h2>
+                                <div id="lcpImprovement" class="accordion-collapse collapse" data-bs-parent="#improvementAccordion" aria-labelledby="lcpHeading" role="region">
+                                    <div class="accordion-body">
+                                        <ul class="improvement-list">
+                                            <li>
+                                                <strong>Optimize and compress images</strong>
+                                                <p>Use modern image formats like WebP or AVIF which are 25-50% smaller than JPEG/PNG. Compress images without significant quality loss using tools like ImageOptim, TinyPNG, or Squoosh. Consider responsive images with the <code>srcset</code> attribute to serve different sized images for different devices.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Implement lazy loading for below-the-fold images</strong>
+                                                <p>Only load images when they're about to enter the viewport using the native <code>loading="lazy"</code> attribute or a JavaScript library like lozad.js. This prioritizes critical content and reduces initial page load time.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Remove render-blocking resources</strong>
+                                                <p>Use <code>async</code> or <code>defer</code> attributes on non-critical scripts. Move critical CSS inline and load non-critical CSS asynchronously. Consider using resource hints like <code>preload</code>, <code>prefetch</code>, and <code>preconnect</code> to prioritize critical resources.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Minimize critical CSS</strong>
+                                                <p>Extract and inline only the CSS needed for above-the-fold content. Use tools like Critical, PurgeCSS, or UnCSS to identify and extract essential styles, reducing the CSS blocking time.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Implement server-side rendering or static generation</strong>
+                                                <p>Pre-render pages on the server to send complete HTML to the browser, reducing client-side rendering time. Consider frameworks like Next.js or Gatsby that support SSR/SSG for improved performance.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Use a CDN to reduce network latency</strong>
+                                                <p>Deploy content across multiple geographic locations to reduce round-trip time to the server. CDNs like Cloudflare, Fastly, or Akamai can significantly reduce time to first byte and speed up resource delivery.</p>
+                                            </li>
+                                        </ul>
+                                        <div class="mt-4 resources-section">
+                                            <h6>Official Resources:</h6>
+                                            <ul class="resource-links">
+                                                <li><a href="https://web.dev/articles/lcp" target="_blank">Largest Contentful Paint (LCP) - web.dev</a></li>
+                                                <li><a href="https://web.dev/articles/optimize-lcp" target="_blank">Optimize Largest Contentful Paint - web.dev</a></li>
+                                                <li><a href="https://docs.sentry.io/product/insights/web-vitals/web-vitals-concepts/#largest-contentful-paint-lcp" target="_blank">Sentry Documentation: LCP Concepts</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="fcpHeading">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fcpImprovement" aria-expanded="false" aria-controls="fcpImprovement" aria-label="Improve FCP section, click to expand">
+                                        Improving FCP (First Contentful Paint)
+                                    </button>
+                                </h2>
+                                <div id="fcpImprovement" class="accordion-collapse collapse" data-bs-parent="#improvementAccordion" aria-labelledby="fcpHeading" role="region">
+                                    <div class="accordion-body">
+                                        <ul class="improvement-list">
+                                            <li>
+                                                <strong>Eliminate render-blocking resources</strong>
+                                                <p>Move JavaScript and CSS that isn't necessary for the initial render to load asynchronously. Use <code>async</code> or <code>defer</code> for scripts and load non-critical CSS with JavaScript or <code>media="print"</code> with an onload handler to switch it to <code>all</code>.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Minify CSS</strong>
+                                                <p>Remove whitespace, comments, and unnecessary characters from CSS files to reduce file size. Use tools like CSSNano, CleanCSS, or build systems like Webpack with appropriate plugins to automatically minify during builds.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Remove unused CSS</strong>
+                                                <p>Eliminate CSS rules that aren't applied to any elements on your page. Tools like PurgeCSS, UnCSS, or Chrome DevTools Coverage tab can help identify unused CSS, potentially reducing CSS payload by 50% or more.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Preconnect to required origins</strong>
+                                                <p>Establish early connections to important third-party domains with <code>&lt;link rel="preconnect"&gt;</code> tags. This performs DNS lookups, TCP handshakes, and optional TLS negotiation in advance, saving 100-500ms when resources are actually requested.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Reduce server response times (TTFB)</strong>
+                                                <p>Optimize server processing by caching database queries, using efficient database indexing, implementing application-level caching, and optimizing server code. Consider using edge computing or serverless functions to reduce latency.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Avoid multiple page redirects</strong>
+                                                <p>Each redirect adds a complete roundtrip (HTTP request and response) before the browser can load the page. Eliminate unnecessary redirects, especially redirect chains, and use server-side redirection instead of client-side when possible.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Preload key requests</strong>
+                                                <p>Use <code>&lt;link rel="preload"&gt;</code> to inform the browser about critical resources needed for the current page. This is especially useful for fonts, critical JavaScript/CSS files, or important images that appear above the fold.</p>
+                                            </li>
+                                        </ul>
+                                        <div class="mt-4 resources-section">
+                                            <h6>Official Resources:</h6>
+                                            <ul class="resource-links">
+                                                <li><a href="https://web.dev/articles/fcp" target="_blank">First Contentful Paint (FCP) - web.dev</a></li>
+                                                <li><a href="https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint" target="_blank">MDN Web Docs: First Contentful Paint</a></li>
+                                                <li><a href="https://docs.sentry.io/product/insights/web-vitals/" target="_blank">Sentry Documentation: Web Vitals</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="inpHeading">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inpImprovement" aria-expanded="false" aria-controls="inpImprovement" aria-label="Improve INP section, click to expand">
+                                        Improving INP (Interaction to Next Paint)
+                                    </button>
+                                </h2>
+                                <div id="inpImprovement" class="accordion-collapse collapse" data-bs-parent="#improvementAccordion" aria-labelledby="inpHeading" role="region">
+                                    <div class="accordion-body">
+                                        <ul class="improvement-list">
+                                            <li>
+                                                <strong>Break up long tasks (>50ms)</strong>
+                                                <p>Chunk JavaScript execution into smaller tasks using techniques like code-splitting, time-slicing, or requestIdleCallback. This prevents the main thread from being blocked for extended periods and helps maintain responsiveness during interactions.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Optimize your JavaScript (code splitting, tree shaking)</strong>
+                                                <p>Use modern bundling techniques to only load necessary code. Code splitting delivers JavaScript in smaller chunks, while tree shaking eliminates unused code. Modern bundlers like Webpack, Rollup, or esbuild can automate these optimizations.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Defer non-critical JavaScript</strong>
+                                                <p>Load and execute non-essential JavaScript after critical page content is interactive. This includes third-party scripts, analytics, and features not needed for the core user experience. Consider loading these scripts on user interaction or after the page is idle.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Use a web worker for heavy processing</strong>
+                                                <p>Move CPU-intensive tasks off the main thread to web workers. This includes data processing, complex calculations, and encoding/decoding operations, keeping the main thread free to handle user interactions.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Minimize main thread work</strong>
+                                                <p>Reduce work on the main thread by optimizing JavaScript execution, minimizing DOM manipulations, and avoiding layout thrashing. Use techniques like debouncing/throttling for event handlers and batching DOM updates to reduce browser reflow/repaint cycles.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Optimize event handlers</strong>
+                                                <p>Keep event handlers lightweight and efficient. Use event delegation instead of attaching many individual listeners. Remove unnecessary event listeners when they're no longer needed, and avoid expensive operations like DOM queries inside frequently triggered events.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Implement proper request prioritization</strong>
+                                                <p>Ensure critical resources are loaded with appropriate priority using resource hints like <code>preload</code>, <code>preconnect</code>, and <code>prefetch</code>. This helps browsers allocate bandwidth more efficiently, ensuring interaction-critical resources are available when needed.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Use requestAnimationFrame for visual updates</strong>
+                                                <p>Synchronize visual changes with the browser's rendering cycle using <code>requestAnimationFrame()</code>. This optimizes animations and visual updates by ensuring they occur at the right time in the rendering pipeline, reducing jank and improving responsiveness.</p>
+                                            </li>
+                                        </ul>
+                                        <div class="mt-4 resources-section">
+                                            <h6>Official Resources:</h6>
+                                            <ul class="resource-links">
+                                                <li><a href="https://web.dev/articles/inp" target="_blank">Interaction to Next Paint (INP) - web.dev</a></li>
+                                                <li><a href="https://web.dev/explore/how-to-optimize-inp" target="_blank">How to Optimize INP - web.dev</a></li>
+                                                <li><a href="https://docs.sentry.io/product/insights/web-vitals/web-vitals-concepts/" target="_blank">Sentry Documentation: Web Vitals Concepts</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="clsHeading">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#clsImprovement" aria-expanded="false" aria-controls="clsImprovement" aria-label="Improve CLS section, click to expand">
+                                        Improving CLS (Cumulative Layout Shift)
+                                    </button>
+                                </h2>
+                                <div id="clsImprovement" class="accordion-collapse collapse" data-bs-parent="#improvementAccordion" aria-labelledby="clsHeading" role="region">
+                                    <div class="accordion-body">
+                                        <ul class="improvement-list">
+                                            <li>
+                                                <strong>Set explicit width and height for images and videos</strong>
+                                                <p>Always specify dimensions for media elements to reserve space before they load. Use the <code>width</code> and <code>height</code> attributes or CSS properties to maintain the aspect ratio. Modern browsers use this information to calculate the correct space even before the image loads.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Reserve space for dynamic content</strong>
+                                                <p>Use placeholder elements with minimum heights or skeleton screens for content that loads asynchronously. This prevents layout shifts when the content eventually loads. For ads, embed containers with specific dimensions that match the expected ad size.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Avoid inserting content above existing content</strong>
+                                                <p>Adding content above what the user already sees (like banners, notifications, or lazy-loaded elements) causes everything below to shift down. Instead, reserve space for these elements from the start or insert them in a way that doesn't displace existing content.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Minimize font swaps by preloading fonts</strong>
+                                                <p>Font loading can cause text to reflow. Preload important fonts with <code>&lt;link rel="preload" as="font"&gt;</code> and use <code>font-display: optional</code> or <code>font-display: swap</code> with fallback fonts that closely match the final font's metrics to minimize shift.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Ensure ads have reserved space</strong>
+                                                <p>Specify fixed dimensions for ad containers that match the ad sizes you're serving. If ad sizes are variable, consider placing them in locations where shifts won't affect the main content, like sidebars or between distinct content sections.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Avoid animations that cause layout shifts</strong>
+                                                <p>Use CSS properties that only trigger compositing (transform, opacity) rather than those that cause layout recalculation (height, width, position). The former are handled by the GPU and don't cause layout shifts, making animations smoother and less disruptive.</p>
+                                            </li>
+                                        </ul>
+                                        <div class="mt-4 resources-section">
+                                            <h6>Official Resources:</h6>
+                                            <ul class="resource-links">
+                                                <li><a href="https://web.dev/articles/cls" target="_blank">Cumulative Layout Shift (CLS) - web.dev</a></li>
+                                                <li><a href="https://web.dev/articles/optimize-cls" target="_blank">Optimize Cumulative Layout Shift - web.dev</a></li>
+                                                <li><a href="https://developer.mozilla.org/en-US/docs/Web/Performance/CLS" target="_blank">MDN Web Docs: Cumulative Layout Shift</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="ttfbHeading">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ttfbImprovement" aria-expanded="false" aria-controls="ttfbImprovement" aria-label="Improve TTFB section, click to expand">
+                                        Improving TTFB (Time to First Byte)
+                                    </button>
+                                </h2>
+                                <div id="ttfbImprovement" class="accordion-collapse collapse" data-bs-parent="#improvementAccordion" aria-labelledby="ttfbHeading" role="region">
+                                    <div class="accordion-body">
+                                        <ul class="improvement-list">
+                                            <li>
+                                                <strong>Optimize server response time</strong>
+                                                <p>Improve backend performance by optimizing application code, using faster web servers, implementing efficient routing, and reducing middleware overhead. Consider upgrading server hardware or scaling horizontally for better performance under load.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Implement server-side caching</strong>
+                                                <p>Cache database queries, API responses, and rendered HTML templates to avoid regenerating content for every request. Use memory-based caching systems like Redis or Memcached for frequently accessed data to reduce processing time and database load.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Use a CDN</strong>
+                                                <p>Content Delivery Networks place your static assets and potentially your entire site on edge servers closer to your users. This dramatically reduces network latency and improves TTFB by 30-60% for users around the world by serving content from the nearest geographic location.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Optimize database queries</strong>
+                                                <p>Improve database performance by adding appropriate indexes, denormalizing data where necessary, optimizing query patterns, and using database query caching. Monitor slow queries and use database-specific optimization techniques for your chosen platform.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Implement HTTP/2 or HTTP/3</strong>
+                                                <p>Modern HTTP protocols improve connection efficiency with features like multiplexing, header compression, and server push. HTTP/3 uses QUIC instead of TCP, further reducing latency especially on mobile networks with frequently changing connections.</p>
+                                            </li>
+                                            <li>
+                                                <strong>Reduce DNS lookup time with DNS prefetching</strong>
+                                                <p>Use <code>&lt;link rel="dns-prefetch"&gt;</code> for domains you'll connect to, reducing DNS resolution time by 50-300ms. This is especially important for third-party resources from multiple domains that are critical for your page rendering.</p>
+                                            </li>
+                                        </ul>
+                                        <div class="mt-4 resources-section">
+                                            <h6>Official Resources:</h6>
+                                            <ul class="resource-links">
+                                                <li><a href="https://web.dev/articles/optimize-ttfb" target="_blank">Optimize Time to First Byte - web.dev</a></li>
+                                                <li><a href="https://blog.sentry.io/your-bad-lcp-score-might-be-a-backend-issue/" target="_blank">Sentry Blog: Your Bad LCP Score Might Be a Backend Issue</a></li>
+                                                <li><a href="https://developer.mozilla.org/en-US/docs/Glossary/Time_to_first_byte" target="_blank">MDN Web Docs: Time to First Byte</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="py-4 mt-4 border-top">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">
+                Made with <span style="color: var(--status-poor);">&hearts;</span> by 
+                <a href="https://github.com/luarmr" target="_blank" rel="noopener" class="link-primary">luarmr</a>
+            </p>
+            <p class="mb-0 mt-2">
+                <a href="https://github.com/luarmr/Web-Vitals-Simulator" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github me-1" viewBox="0 0 16 16">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                    <span>View on GitHub</span>
+                </a>
+            </p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
