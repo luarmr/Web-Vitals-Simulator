@@ -1,6 +1,6 @@
 # Web Vitals Score Simulator
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/be085537-9481-435b-99c7-529a0a0c9cdc/deploy-status)](https://app.netlify.com/sites/web-vitals-simulator/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/fcdaf23d-0768-4e69-a4bc-78e980fb37d0/deploy-status)](https://app.netlify.com/sites/web-vitals-simulator/deploys)
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://web-vitals-simulator.netlify.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
