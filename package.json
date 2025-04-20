@@ -2,7 +2,8 @@
   "scripts": {
     "lint": "biome lint .",
     "format": "biome format . --write",
-    "check": "biome check --write ."
+    "check": "biome check --write .",
+    "build": "mkdir -p dist && cp -r index.html styles.css script.js favicon dist/ && cp -r favicon dist/"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4"
